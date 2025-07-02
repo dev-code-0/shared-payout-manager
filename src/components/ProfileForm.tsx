@@ -55,7 +55,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profile, onSubmit, onCancel }
       <form onSubmit={handleSubmit}>
         <div className="form-grid">
           <div className="form-group">
-            <label htmlFor="nombre">Nombre *</label>
+            <label htmlFor="nombre">Nombre de la Persona *</label>
             <input
               id="nombre"
               name="nombre"
@@ -63,7 +63,20 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profile, onSubmit, onCancel }
               value={formData.nombre}
               onChange={handleChange}
               required
-              placeholder="Nombre completo"
+              placeholder="Juan Pérez"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="propietario">Nombre del Perfil *</label>
+            <input
+              id="propietario"
+              name="propietario"
+              type="text"
+              value={formData.propietario}
+              onChange={handleChange}
+              required
+              placeholder="Netflix 01, Spotify Premium, etc."
             />
           </div>
 
@@ -75,23 +88,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profile, onSubmit, onCancel }
               type="text"
               value={formData.pin}
               onChange={handleChange}
-              placeholder="Código PIN"
+              placeholder="Código PIN del perfil"
             />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="propietario">Propietario *</label>
-            <select
-              id="propietario"
-              name="propietario"
-              value={formData.propietario}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Seleccionar propietario</option>
-              <option value="Admin 1">Admin 1</option>
-              <option value="Admin 2">Admin 2</option>
-            </select>
           </div>
 
           <div className="form-group">

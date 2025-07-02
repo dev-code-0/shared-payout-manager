@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { format, isToday, isTomorrow, addDays, isBefore, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -29,7 +28,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         id: '1',
         nombre: 'Juan Pérez',
         pin: '1234',
-        propietario: 'Admin 1',
+        propietario: 'Netflix 01',
         correo: 'juan@email.com',
         plataforma: 'Netflix',
         monto: 15000,
@@ -40,7 +39,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         id: '2',
         nombre: 'María García',
         pin: '5678',
-        propietario: 'Admin 2',
+        propietario: 'Spotify Premium',
         correo: 'maria@email.com',
         plataforma: 'Spotify',
         monto: 8000,
@@ -51,7 +50,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         id: '3',
         nombre: 'Carlos López',
         pin: '',
-        propietario: 'Admin 1',
+        propietario: 'Netflix 02',
         correo: 'carlos@email.com',
         plataforma: 'Netflix',
         monto: 15000,
@@ -153,7 +152,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
             <h3>⚠️ Pagos Próximos</h3>
             {upcomingPayments.map(profile => (
               <div key={profile.id} className="alert-card">
-                <strong>{profile.nombre}</strong> debe pagar {profile.plataforma} 
+                <strong>{profile.nombre}</strong> ({profile.propietario}) debe pagar {profile.plataforma} 
                 el día {profile.fecha_pago} (${profile.monto.toLocaleString()})
               </div>
             ))}

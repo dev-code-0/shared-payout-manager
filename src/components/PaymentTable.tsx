@@ -62,8 +62,8 @@ const PaymentTable: React.FC<PaymentTableProps> = ({
           <thead>
             <tr>
               <th>Usuario</th>
+              <th>Perfil</th>
               <th>Plataforma</th>
-              <th>Propietario</th>
               <th>Monto</th>
               <th>Día de Pago</th>
               <th>Estado</th>
@@ -81,14 +81,16 @@ const PaymentTable: React.FC<PaymentTableProps> = ({
                   </div>
                 </td>
                 
+                <td className="profile-info">
+                  <div className="profile-name">
+                    <strong>{profile.propietario}</strong>
+                  </div>
+                </td>
+                
                 <td className="platform-info">
                   <span className="platform-badge">
                     {getPlatformIcon(profile.plataforma)} {profile.plataforma}
                   </span>
-                </td>
-                
-                <td className="owner-info">
-                  {profile.propietario}
                 </td>
                 
                 <td className="amount-info">
