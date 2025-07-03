@@ -1,73 +1,113 @@
-# Welcome to your Lovable project
 
-## Project info
+# Payout Manager - Sistema de Gestión de Pagos Compartidos
 
-**URL**: https://lovable.dev/projects/a8689164-a8e4-4ce4-b18f-2a467d23c1e3
+Sistema completo para gestionar pagos compartidos de servicios de streaming (Netflix, Spotify, etc.) con frontend en React y backend en Node.js.
 
-## How can I edit this code?
+## 🏗️ Arquitectura
 
-There are several ways of editing your application.
+- **Frontend**: React + Vite + Tailwind CSS (Deploy en Vercel)
+- **Backend**: Node.js + Express + SQLite (Deploy en Render)
+- **Base de datos**: SQLite con persistencia
 
-**Use Lovable**
+## 📁 Estructura del Proyecto
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/a8689164-a8e4-4ce4-b18f-2a467d23c1e3) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+/
+├── frontend/          # Aplicación React
+│   ├── src/
+│   │   ├── components/    # Componentes de UI
+│   │   ├── services/      # Servicios API
+│   │   ├── config/        # Configuración
+│   │   └── types/         # Tipos TypeScript
+│   └── package.json
+├── backend/           # API Node.js
+│   ├── src/
+│   │   ├── controllers/   # Controladores
+│   │   ├── routes/        # Rutas de la API
+│   │   ├── middleware/    # Middleware de autenticación
+│   │   ├── config/        # Configuración de DB
+│   │   └── database/      # Inicialización de DB
+│   └── package.json
+└── README.md
 ```
 
-**Edit a file directly in GitHub**
+## 🚀 Instalación y Configuración
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 1. Instalar Backend
+```bash
+cd backend
+npm install
+npm run init-db  # Crea la base de datos y usuario admin
+npm run dev      # Arranca en http://localhost:3001
+```
 
-**Use GitHub Codespaces**
+### 2. Instalar Frontend
+```bash
+cd frontend
+npm install
+npm run dev      # Arranca en http://localhost:8080
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🔐 Credenciales por defecto
 
-## What technologies are used for this project?
+- **Usuario**: admin
+- **Contraseña**: admin123
 
-This project is built with:
+## 📱 Funcionalidades
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- ✅ Login con JWT
+- ✅ CRUD de perfiles de usuarios
+- ✅ Gestión de estados de pago
+- ✅ Alertas de pagos próximos
+- ✅ Estadísticas y resúmenes
+- ✅ Filtrado por plataforma
+- ✅ Persistencia en base de datos
 
-## How can I deploy this project?
+## 🌐 Deploy
 
-Simply open [Lovable](https://lovable.dev/projects/a8689164-a8e4-4ce4-b18f-2a467d23c1e3) and click on Share -> Publish.
+### Frontend en Vercel
+1. Conecta tu repo de GitHub a Vercel
+2. Selecciona la carpeta `frontend`
+3. Configura la variable de entorno para la API
 
-## Can I connect a custom domain to my Lovable project?
+### Backend en Render
+1. Conecta tu repo de GitHub a Render
+2. Selecciona la carpeta `backend`
+3. Configura las variables de entorno necesarias
 
-Yes, you can!
+## ⚙️ Variables de Entorno
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Backend (.env)
+```
+PORT=3001
+JWT_SECRET=tu_clave_secreta_aqui
+FRONTEND_URL=http://localhost:8080
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Frontend
+```
+# En frontend/src/config/api.ts
+# Cambiar la URL de producción por tu URL de Render
+```
+
+## 🛠️ Comandos Útiles
+
+### Backend
+- `npm run dev` - Desarrollo con nodemon
+- `npm start` - Producción
+- `npm run init-db` - Inicializar base de datos
+
+### Frontend
+- `npm run dev` - Desarrollo
+- `npm run build` - Build para producción
+- `npm run preview` - Preview del build
+
+## 📊 API Endpoints
+
+- `POST /api/auth/login` - Iniciar sesión
+- `GET /api/auth/verify` - Verificar token
+- `GET /api/profiles` - Obtener perfiles
+- `POST /api/profiles` - Crear perfil
+- `PUT /api/profiles/:id` - Actualizar perfil
+- `DELETE /api/profiles/:id` - Eliminar perfil
+- `PATCH /api/profiles/:id/status` - Cambiar estado de pago
