@@ -1,7 +1,7 @@
 
 # 🚀 GUÍA COMPLETA DE DEPLOYMENT
 
-## Payout Manager - Frontend + Backend
+## Administrador de pagos - Frontend + Backend
 
 Esta guía te explica paso a paso cómo desplegar tu aplicación completa:
 - **Frontend** en **Vercel** 

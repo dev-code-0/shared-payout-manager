@@ -27,7 +27,7 @@ if (!fs.existsSync(dataDir)) {
 }
 
 // Configuración de la base de datos
-const dbPath = process.env.DATABASE_PATH || join(dataDir, 'database.sqlite');
+const dbPath = process.env.DATABASE_PATH || join(dataDir, 'database.sqlite'); //
 
 console.log('🗄️ Conectando a base de datos en:', dbPath);
 

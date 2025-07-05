@@ -98,13 +98,6 @@ body {
   transform: none;
 }
 
-.login-info {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: #f3f4f6;
-  border-radius: 8px;
-  color: #6b7280;
-}
 
 /* Dashboard Styles */
 .dashboard {

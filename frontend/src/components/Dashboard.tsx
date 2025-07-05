@@ -199,7 +199,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     <div className="dashboard">
       <header className="dashboard-header">
         <div className="header-content">
-          <h1>💳 Payout Manager</h1>
+          <h1>Administrador de pagos</h1>
           <div className="header-actions">
             <small>🌐 Conectado: {profiles.length} perfiles</small>
             <button onClick={handleLogout} className="logout-button">

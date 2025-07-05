@@ -38,7 +38,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <h1>💳 Payout Manager</h1>
+          <h1>Administrador de pagos</h1>
           <p>Gestión de Pagos Compartidos</p>
         </div>
         
@@ -72,9 +72,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
           </button>
         </form>
         
-        <div className="login-info">
-          <small>👥 Usuario: admin | Contraseña: admin123</small>
-        </div>
+       
       </div>
     </div>
   );

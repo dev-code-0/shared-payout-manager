@@ -1,5 +1,5 @@
 
-# 🚀 PAYOUT MANAGER - BACKEND
+# 🚀 Administrador de pagos - BACKEND
 
 API REST para la gestión de pagos compartidos de suscripciones digitales.
 

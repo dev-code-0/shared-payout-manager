@@ -134,8 +134,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profile, onSubmit, onCancel }
               onChange={handleChange}
               required
               min="0"
-              step="100"
-              placeholder="15000"
+              step="1"
+              placeholder="10"
             />
           </div>
 

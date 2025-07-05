@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Profile } from '../types';
 
@@ -94,7 +93,7 @@ const PaymentTable: React.FC<PaymentTableProps> = ({
                 </td>
                 
                 <td className="amount-info">
-                  <strong>${profile.monto.toLocaleString()}</strong>
+                  <strong>S/{profile.monto.toLocaleString()}</strong>
                 </td>
                 
                 <td className="payment-date">

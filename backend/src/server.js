@@ -1,6 +1,6 @@
 
 /**
- * SERVIDOR PRINCIPAL - PAYOUT MANAGER BACKEND
+ * SERVIDOR PRINCIPAL - Administrador de pagos BACKEND
  * 
  * Este es el archivo principal del servidor Express.
  * Configura middlewares, rutas y inicia el servidor.
@@ -81,7 +81,7 @@ if (process.env.NODE_ENV !== 'production') {
 app.get('/', (req, res) => {
     res.json({
         success: true,
-        message: 'Payout Manager API funcionando correctamente',
+        message: 'Administrador de pagos API funcionando correctamente',
         version: '1.0.0',
         timestamp: new Date().toISOString()
     });
@@ -121,7 +121,7 @@ const startServer = async () => {
         // Iniciar servidor
         app.listen(PORT, '0.0.0.0', () => {
             console.log('🚀 =====================================');
-            console.log('🚀 PAYOUT MANAGER BACKEND INICIADO');
+            console.log('🚀 Administrador de pagos BACKEND INICIADO');
             console.log('🚀 =====================================');
             console.log(`🌐 Servidor corriendo en puerto: ${PORT}`);
             console.log(`🌍 URL local: http://localhost:${PORT}`);

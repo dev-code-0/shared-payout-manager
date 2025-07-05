@@ -31,7 +31,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         propietario: 'Netflix 01',
         correo: 'juan@email.com',
         plataforma: 'Netflix',
-        monto: 15000,
+        monto: 12,
         fecha_pago: 5,
         estado_pago: 'pagado'
       },
@@ -42,7 +42,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         propietario: 'Spotify Premium',
         correo: 'maria@email.com',
         plataforma: 'Spotify',
-        monto: 8000,
+        monto: 10,
         fecha_pago: 10,
         estado_pago: 'pendiente'
       },
@@ -53,7 +53,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         propietario: 'Netflix 02',
         correo: 'carlos@email.com',
         plataforma: 'Netflix',
-        monto: 15000,
+        monto: 12,
         fecha_pago: 3,
         estado_pago: 'pendiente'
       }
@@ -138,7 +138,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     <div className="dashboard">
       <header className="dashboard-header">
         <div className="header-content">
-          <h1>💳 Payout Manager</h1>
+          <h1>Administrador de pagos </h1>
           <button onClick={onLogout} className="logout-button">
             Cerrar Sesión
           </button>
@@ -153,7 +153,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
             {upcomingPayments.map(profile => (
               <div key={profile.id} className="alert-card">
                 <strong>{profile.nombre}</strong> ({profile.propietario}) debe pagar {profile.plataforma} 
-                el día {profile.fecha_pago} (${profile.monto.toLocaleString()})
+                el día {profile.fecha_pago} (S/{profile.monto.toLocaleString()})
               </div>
             ))}
           </div>
@@ -164,15 +164,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
           <div className="stats-grid">
             <div className="stat-card total">
               <h3>Total a Recaudar</h3>
-              <p>${stats.totalAmount.toLocaleString()}</p>
+              <p>S/{stats.totalAmount.toLocaleString()}</p>
             </div>
             <div className="stat-card paid">
               <h3>Ya Pagado</h3>
-              <p>${stats.paidAmount.toLocaleString()}</p>
+              <p>S/{stats.paidAmount.toLocaleString()}</p>
             </div>
             <div className="stat-card pending">
               <h3>Pendiente</h3>
-              <p>${stats.pendingAmount.toLocaleString()}</p>
+              <p>S/{stats.pendingAmount.toLocaleString()}</p>
             </div>
             <div className="stat-card count">
               <h3>Perfiles Pendientes</h3>
