@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import ProfileForm from './ProfileForm';
 import PaymentTable from './PaymentTable';
@@ -31,13 +30,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
 
   const loadProfiles = async () => {
     try {
-      console.log('📋 Cargando perfiles...');
+      console.log('📋 Cargando perfiles desde backend...');
       setIsLoading(true);
       
       const fetchedProfiles = await getProfiles();
+      console.log('✅ Perfiles obtenidos:', fetchedProfiles);
       setProfiles(fetchedProfiles);
       
-      console.log(`✅ ${fetchedProfiles.length} perfiles cargados`);
+      toast.success(`${fetchedProfiles.length} perfiles cargados`);
     } catch (error) {
       console.error('❌ Error cargando perfiles:', error);
       
@@ -45,7 +45,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         toast.error(`Error cargando perfiles: ${error.message}`);
         
         // Si es error de autenticación, cerrar sesión
-        if (error.message.includes('Token') || error.message.includes('401')) {
+        if (error.message.includes('Token') || error.message.includes('401') || error.message.includes('403')) {
+          toast.error('Sesión expirada, cerrando sesión...');
           handleLogout();
         }
       }
@@ -59,8 +60,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       console.log('➕ Creando perfil:', profileData.nombre);
       
       const newProfile = await createProfile(profileData);
-      setProfiles([...profiles, newProfile]);
+      console.log('✅ Perfil creado:', newProfile);
       
+      setProfiles([...profiles, newProfile]);
       toast.success('Perfil agregado exitosamente');
       setShowForm(false);
     } catch (error) {
@@ -79,6 +81,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       console.log('✏️ Actualizando perfil:', editingProfile.id);
       
       const updatedProfile = await updateProfile(editingProfile.id, profileData);
+      console.log('✅ Perfil actualizado:', updatedProfile);
       
       const updatedProfiles = profiles.map(p => 
         p.id === editingProfile.id ? updatedProfile : p
@@ -102,8 +105,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       console.log('🗑️ Eliminando perfil:', id);
       
       await deleteProfile(id);
-      setProfiles(profiles.filter(p => p.id !== id));
+      console.log('✅ Perfil eliminado');
       
+      setProfiles(profiles.filter(p => p.id !== id));
       toast.success('Perfil eliminado exitosamente');
     } catch (error) {
       console.error('❌ Error eliminando perfil:', error);
@@ -119,6 +123,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       console.log('💳 Cambiando estado de pago:', id, '->', status);
       
       await updatePaymentStatus(id, status);
+      console.log('✅ Estado actualizado');
       
       const updatedProfiles = profiles.map(p => 
         p.id === id ? { ...p, estado_pago: status } : p
@@ -196,7 +201,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         <div className="header-content">
           <h1>💳 Payout Manager</h1>
           <div className="header-actions">
-            <small>🌐 Conectado al servidor</small>
+            <small>🌐 Conectado: {profiles.length} perfiles</small>
             <button onClick={handleLogout} className="logout-button">
               Cerrar Sesión
             </button>
@@ -272,18 +277,34 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
           </button>
         </div>
 
+        {/* Mensaje si no hay perfiles */}
+        {profiles.length === 0 && !isLoading && (
+          <div className="empty-state">
+            <h3>📋 No hay perfiles registrados</h3>
+            <p>Agrega tu primer perfil para comenzar a gestionar los pagos</p>
+            <button 
+              onClick={() => setShowForm(true)} 
+              className="add-button"
+            >
+              ➕ Agregar Primer Perfil
+            </button>
+          </div>
+        )}
+
         {/* Tabla de perfiles */}
-        <PaymentTable
-          profiles={profiles.filter(p => 
-            selectedPlatform === 'todas' || p.plataforma === selectedPlatform
-          )}
-          onEdit={(profile) => {
-            setEditingProfile(profile);
-            setShowForm(true);
-          }}
-          onDelete={handleDeleteProfile}
-          onPaymentStatusChange={handlePaymentStatusChange}
-        />
+        {profiles.length > 0 && (
+          <PaymentTable
+            profiles={profiles.filter(p => 
+              selectedPlatform === 'todas' || p.plataforma === selectedPlatform
+            )}
+            onEdit={(profile) => {
+              setEditingProfile(profile);
+              setShowForm(true);
+            }}
+            onDelete={handleDeleteProfile}
+            onPaymentStatusChange={handlePaymentStatusChange}
+          />
+        )}
       </main>
 
       {/* Modal de formulario */}
