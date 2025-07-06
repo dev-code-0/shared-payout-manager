@@ -1,46 +1,43 @@
 
 /**
- * CONFIGURACIÓN DE BASE DE DATOS SQLITE
+ * CONFIGURACIÓN DE BASE DE DATOS POSTGRESQL
  * 
- * Este archivo maneja la conexión a la base de datos SQLite.
- * SQLite es perfecto para aplicaciones pequeñas-medianas y funciona
- * excelente en Render.
+ * Este archivo maneja la conexión a la base de datos PostgreSQL.
+ * PostgreSQL es perfecto para aplicaciones en producción y 
+ * Render lo soporta nativamente.
  * 
  * IMPORTANTE PARA RENDER:
- * - Los archivos se guardan en un directorio persistente
- * - Render mantiene los datos entre deploys
+ * - Render proporciona automáticamente la DATABASE_URL
+ * - La conexión se hace a través de la URL completa
  */
 
-import sqlite3 from 'sqlite3';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-import fs from 'fs';
+import pg from 'pg';
+const { Client } = pg;
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Configuración de conexión PostgreSQL
+const connectionConfig = {
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+};
 
-// Crear directorio data si no existe
-const dataDir = join(__dirname, '../../data');
-if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-    console.log('📁 Directorio data creado');
-}
+console.log('🗄️ Conectando a base de datos PostgreSQL...');
 
-// Configuración de la base de datos
-const dbPath = process.env.DATABASE_PATH || join(dataDir, 'database.sqlite'); //
+// Crear cliente PostgreSQL
+const db = new Client(connectionConfig);
 
-console.log('🗄️ Conectando a base de datos en:', dbPath);
-
-// Crear conexión a SQLite
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
+// Conectar a la base de datos
+db.connect()
+    .then(() => {
+        console.log('✅ Conectado a base de datos PostgreSQL');
+    })
+    .catch(err => {
         console.error('❌ Error conectando a base de datos:', err.message);
         process.exit(1);
-    }
-    console.log('✅ Conectado a base de datos SQLite');
-});
+    });
 
-// Habilitar foreign keys
-db.run('PRAGMA foreign_keys = ON');
+// Función helper para ejecutar queries con promesas
+export const query = (text, params) => {
+    return db.query(text, params);
+};
 
 export default db;
