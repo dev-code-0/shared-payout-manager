@@ -37,7 +37,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       console.log('✅ Perfiles obtenidos:', fetchedProfiles);
       setProfiles(fetchedProfiles);
       
-      toast.success(`${fetchedProfiles.length} perfiles cargados`);
+      toast.success(`${fetchedProfiles.length} perfiles cargados desde la base de datos`);
     } catch (error) {
       console.error('❌ Error cargando perfiles:', error);
       
@@ -62,7 +62,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       const newProfile = await createProfile(profileData);
       console.log('✅ Perfil creado:', newProfile);
       
-      setProfiles([...profiles, newProfile]);
+      // Recargar todos los perfiles para asegurar sincronización
+      await loadProfiles();
       toast.success('Perfil agregado exitosamente');
       setShowForm(false);
     } catch (error) {
@@ -83,11 +84,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       const updatedProfile = await updateProfile(editingProfile.id, profileData);
       console.log('✅ Perfil actualizado:', updatedProfile);
       
-      const updatedProfiles = profiles.map(p => 
-        p.id === editingProfile.id ? updatedProfile : p
-      );
-      setProfiles(updatedProfiles);
-      
+      // Recargar todos los perfiles para asegurar sincronización
+      await loadProfiles();
       toast.success('Perfil actualizado exitosamente');
       setEditingProfile(null);
       setShowForm(false);
@@ -107,7 +105,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       await deleteProfile(id);
       console.log('✅ Perfil eliminado');
       
-      setProfiles(profiles.filter(p => p.id !== id));
+      // Recargar todos los perfiles para asegurar sincronización
+      await loadProfiles();
       toast.success('Perfil eliminado exitosamente');
     } catch (error) {
       console.error('❌ Error eliminando perfil:', error);
@@ -125,11 +124,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       await updatePaymentStatus(id, status);
       console.log('✅ Estado actualizado');
       
-      const updatedProfiles = profiles.map(p => 
-        p.id === id ? { ...p, estado_pago: status } : p
-      );
-      setProfiles(updatedProfiles);
-      
+      // Recargar todos los perfiles para asegurar sincronización
+      await loadProfiles();
       toast.success(`Estado actualizado a ${status}`);
     } catch (error) {
       console.error('❌ Error actualizando estado:', error);
@@ -188,8 +184,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     return (
       <div className="dashboard">
         <div className="loading-container">
-          <h2>🔄 Cargando datos...</h2>
-          <p>Conectando con el servidor...</p>
+          <h2>🔄 Cargando datos desde PostgreSQL...</h2>
+          <p>Conectando con la base de datos...</p>
         </div>
       </div>
     );
@@ -201,7 +197,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         <div className="header-content">
           <h1>Administrador de pagos</h1>
           <div className="header-actions">
-            <small>🌐 Conectado: {profiles.length} perfiles</small>
+            <small>🐘 PostgreSQL: {profiles.length} perfiles</small>
             <button onClick={handleLogout} className="logout-button">
               Cerrar Sesión
             </button>
@@ -217,7 +213,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
             {upcomingPayments.map(profile => (
               <div key={profile.id} className="alert-card">
                 <strong>{profile.nombre}</strong> ({profile.propietario}) debe pagar {profile.plataforma} 
-                el día {profile.fecha_pago} (${profile.monto.toLocaleString()})
+                el día {profile.fecha_pago} (S/{profile.monto.toLocaleString()})
               </div>
             ))}
           </div>
@@ -228,15 +224,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
           <div className="stats-grid">
             <div className="stat-card total">
               <h3>Total a Recaudar</h3>
-              <p>${stats.totalAmount.toLocaleString()}</p>
+              <p>S/{stats.totalAmount.toLocaleString()}</p>
             </div>
             <div className="stat-card paid">
               <h3>Ya Pagado</h3>
-              <p>${stats.paidAmount.toLocaleString()}</p>
+              <p>S/{stats.paidAmount.toLocaleString()}</p>
             </div>
             <div className="stat-card pending">
               <h3>Pendiente</h3>
-              <p>${stats.pendingAmount.toLocaleString()}</p>
+              <p>S/{stats.pendingAmount.toLocaleString()}</p>
             </div>
             <div className="stat-card count">
               <h3>Perfiles Pendientes</h3>
@@ -271,7 +267,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
           <button 
             onClick={loadProfiles} 
             className="refresh-button"
-            title="Actualizar datos"
+            title="Actualizar datos desde PostgreSQL"
           >
             🔄 Actualizar
           </button>
@@ -280,7 +276,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         {/* Mensaje si no hay perfiles */}
         {profiles.length === 0 && !isLoading && (
           <div className="empty-state">
-            <h3>📋 No hay perfiles registrados</h3>
+            <h3>📋 No hay perfiles en la base de datos</h3>
             <p>Agrega tu primer perfil para comenzar a gestionar los pagos</p>
             <button 
               onClick={() => setShowForm(true)} 

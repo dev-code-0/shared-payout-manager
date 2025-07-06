@@ -1,13 +1,9 @@
 
 /**
- * SERVIDOR PRINCIPAL - Administrador de pagos BACKEND
+ * SERVIDOR PRINCIPAL
  * 
- * Este es el archivo principal del servidor Express.
- * Configura middlewares, rutas y inicia el servidor.
- * 
- * IMPORTANTE PARA RENDER:
- * - Render usa la variable de entorno PORT automáticamente
- * - El servidor se inicia en 0.0.0.0 para ser accesible públicamente
+ * Este es el punto de entrada del backend.
+ * Configura Express, middlewares, rutas y conecta con PostgreSQL.
  */
 
 import express from 'express';
@@ -15,8 +11,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 // Importar rutas
 import authRoutes from './routes/auth.js';
@@ -25,121 +19,140 @@ import profileRoutes from './routes/profiles.js';
 // Importar inicialización de base de datos
 import initDatabase from './database/init.js';
 
-// Configurar variables de entorno
+// Cargar variables de entorno
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Crear instancia de Express
 const app = express();
-
-// Puerto del servidor (Render usa process.env.PORT automáticamente)
 const PORT = process.env.PORT || 3001;
 
-// CONFIGURACIÓN DE MIDDLEWARES
+// =====================
+// CONFIGURACIÓN DE SEGURIDAD
+// =====================
 
-// 1. Helmet para seguridad básica
+// Helmet para headers de seguridad
 app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    crossOriginEmbedderPolicy: false
 }));
 
-// 2. CORS - Permitir requests desde el frontend
-const corsOptions = {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true,
-    optionsSuccessStatus: 200
-};
-app.use(cors(corsOptions));
-
-// 3. Rate limiting - Prevenir abuso de API
+// Rate limiting - 1000 requests por 15 minutos
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100, // máximo 100 requests por IP cada 15 min
+    windowMs: 15 * 60 * 1000,
+    max: 1000,
     message: {
         success: false,
-        message: 'Demasiadas peticiones, intenta de nuevo en 15 minutos'
+        message: 'Demasiadas peticiones desde esta IP, intenta más tarde.'
     }
 });
-app.use('/api/', limiter);
+app.use(limiter);
 
-// 4. Parsear JSON y URL encoded
+// =====================
+// CONFIGURACIÓN DE CORS
+// =====================
+
+const corsOptions = {
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://shared-payout-manager.vercel.app',
+        'https://*.vercel.app'
+    ],
+    credentials: true,
+    optionsSuccessStatus: 200,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+};
+
+app.use(cors(corsOptions));
+
+// =====================
+// MIDDLEWARES
+// =====================
+
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// 5. Logging de requests (solo en desarrollo)
-if (process.env.NODE_ENV !== 'production') {
-    app.use((req, res, next) => {
-        console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-        next();
-    });
-}
+// Logging middleware
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    next();
+});
 
-// RUTAS DE LA API
+// =====================
+// RUTAS DE SALUD
+// =====================
 
-// Ruta de health check
-app.get('/', (req, res) => {
+app.get('/health', (req, res) => {
     res.json({
         success: true,
-        message: 'Administrador de pagos API funcionando correctamente',
-        version: '1.0.0',
+        message: 'Servidor funcionando correctamente',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
+
+app.get('/api/health', (req, res) => {
+    res.json({
+        success: true,
+        message: 'API funcionando correctamente',
+        database: 'PostgreSQL conectado',
         timestamp: new Date().toISOString()
     });
 });
 
-// Rutas de autenticación
-app.use('/api/auth', authRoutes);
+// =====================
+// RUTAS DE LA API
+// =====================
 
-// Rutas de perfiles
+app.use('/api/auth', authRoutes);
 app.use('/api/profiles', profileRoutes);
 
-// Ruta para manejar 404
+// =====================
+// MANEJO DE ERRORES
+// =====================
+
+// Middleware para rutas no encontradas
 app.use('*', (req, res) => {
+    console.log(`❌ Ruta no encontrada: ${req.method} ${req.originalUrl}`);
     res.status(404).json({
         success: false,
-        message: 'Endpoint no encontrado'
+        message: `Ruta no encontrada: ${req.method} ${req.originalUrl}`
     });
 });
 
-// Manejador global de errores
-app.use((err, req, res, next) => {
-    console.error('❌ Error no manejado:', err);
+// Middleware global de manejo de errores
+app.use((error, req, res, next) => {
+    console.error('❌ Error del servidor:', error);
     
-    res.status(500).json({
+    res.status(error.status || 500).json({
         success: false,
-        message: 'Error interno del servidor',
-        ...(process.env.NODE_ENV !== 'production' && { error: err.message })
+        message: process.env.NODE_ENV === 'production' 
+            ? 'Error interno del servidor' 
+            : error.message
     });
 });
 
-// INICIALIZAR SERVIDOR
+// =====================
+// INICIALIZACIÓN DEL SERVIDOR
+// =====================
+
 const startServer = async () => {
     try {
-        // Inicializar base de datos
+        // Inicializar base de datos PostgreSQL
+        console.log('🔧 Inicializando base de datos PostgreSQL...');
         await initDatabase();
-        
+        console.log('✅ Base de datos PostgreSQL inicializada');
+
         // Iniciar servidor
-        app.listen(PORT, '0.0.0.0', () => {
-            console.log('🚀 =====================================');
-            console.log('🚀 Administrador de pagos BACKEND INICIADO');
-            console.log('🚀 =====================================');
-            console.log(`🌐 Servidor corriendo en puerto: ${PORT}`);
-            console.log(`🌍 URL local: http://localhost:${PORT}`);
-            console.log(`🔒 CORS habilitado para: ${corsOptions.origin}`);
-            console.log(`📱 Frontend esperado en: ${process.env.FRONTEND_URL}`);
-            console.log('🚀 =====================================');
+        app.listen(PORT, () => {
+            console.log('🚀 Servidor iniciado exitosamente');
+            console.log(`🌐 Backend URL: http://localhost:${PORT}`);
+            console.log(`📊 Health check: http://localhost:${PORT}/health`);
+            console.log(`🔑 API endpoint: http://localhost:${PORT}/api`);
+            console.log(`🗄️ Base de datos: PostgreSQL`);
+            console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
             
-            if (process.env.NODE_ENV !== 'production') {
-                console.log('🔧 Endpoints disponibles:');
-                console.log('   GET  / - Health check');
-                console.log('   POST /api/auth/login - Login');
-                console.log('   GET  /api/auth/verify - Verificar token');
-                console.log('   GET  /api/profiles - Obtener perfiles');
-                console.log('   POST /api/profiles - Crear perfil');
-                console.log('   PUT  /api/profiles/:id - Actualizar perfil');
-                console.log('   DELETE /api/profiles/:id - Eliminar perfil');
-                console.log('   PATCH /api/profiles/:id/payment-status - Cambiar estado');
-                console.log('🚀 =====================================');
+            if (process.env.NODE_ENV === 'production') {
+                console.log('🔗 Frontend URL: https://shared-payout-manager.vercel.app');
             }
         });
     } catch (error) {
@@ -148,16 +161,16 @@ const startServer = async () => {
     }
 };
 
-// Manejar cierre graceful del servidor
+// Iniciar servidor
+startServer();
+
+// Manejo graceful de cierre del servidor
 process.on('SIGTERM', () => {
-    console.log('🛑 Cerrando servidor...');
+    console.log('🛑 SIGTERM recibido, cerrando servidor...');
     process.exit(0);
 });
 
 process.on('SIGINT', () => {
-    console.log('🛑 Cerrando servidor...');
+    console.log('🛑 SIGINT recibido, cerrando servidor...');
     process.exit(0);
 });
-
-// Iniciar servidor
-startServer();
