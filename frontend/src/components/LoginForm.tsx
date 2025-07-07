@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { login } from '../services/api';
 
 interface LoginFormProps {
   onLogin: (token: string) => void;
@@ -19,26 +18,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     setIsLoading(true);
 
     try {
-      console.log('🔐 Intentando login...');
-      
-      // Llamar al backend para autenticación
-      const response = await login(credentials);
-      
-      // Guardar token en localStorage
-      localStorage.setItem('authToken', response.token);
-      
-      // Notificar al componente padre
-      onLogin(response.token);
-      
-      toast.success('Inicio de sesión exitoso');
-    } catch (error) {
-      console.error('❌ Error en login:', error);
-      
-      if (error instanceof Error) {
-        toast.error(error.message);
+      // Simulamos autenticación (en producción sería una llamada al backend)
+      if (credentials.username === 'admin' && credentials.password === 'admin123') {
+        const token = 'fake-jwt-token-' + Date.now();
+        localStorage.setItem('authToken', token);
+        onLogin(token);
+        toast.success('Inicio de sesión exitoso');
       } else {
-        toast.error('Error al iniciar sesión');
+        toast.error('Credenciales incorrectas');
       }
+    } catch (error) {
+      toast.error('Error al iniciar sesión');
     } finally {
       setIsLoading(false);
     }
@@ -62,7 +52,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
               onChange={(e) => setCredentials({...credentials, username: e.target.value})}
               placeholder="Ingresa tu usuario"
               required
-              disabled={isLoading}
             />
           </div>
           
@@ -75,7 +64,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
               onChange={(e) => setCredentials({...credentials, password: e.target.value})}
               placeholder="Ingresa tu contraseña"
               required
-              disabled={isLoading}
             />
           </div>
           
@@ -84,10 +72,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
           </button>
         </form>
         
-        <div className="login-info">
-          
-          <small>🌐 Conectando con backend...</small>
-        </div>
+       
       </div>
     </div>
   );

@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { format, isToday, isTomorrow, addDays, isBefore, startOfDay } from 'date-fns';
+import { es } from 'date-fns/locale';
 import ProfileForm from './ProfileForm';
 import PaymentTable from './PaymentTable';
 import { toast } from 'sonner';
 import { Profile, PaymentStats } from '../types';
-import { 
-  getProfiles, 
-  createProfile, 
-  updateProfile, 
-  deleteProfile, 
-  updatePaymentStatus,
-  logout 
-} from '../services/api';
 
 interface DashboardProps {
   onLogout: () => void;
@@ -21,125 +15,85 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string>('todas');
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Cargar perfiles al montar el componente
+  // Cargar datos iniciales
   useEffect(() => {
     loadProfiles();
   }, []);
 
-  const loadProfiles = async () => {
-    try {
-      console.log('📋 Cargando perfiles desde backend...');
-      setIsLoading(true);
-      
-      const fetchedProfiles = await getProfiles();
-      console.log('✅ Perfiles obtenidos:', fetchedProfiles);
-      setProfiles(fetchedProfiles);
-      
-      toast.success(`${fetchedProfiles.length} perfiles cargados desde la base de datos`);
-    } catch (error) {
-      console.error('❌ Error cargando perfiles:', error);
-      
-      if (error instanceof Error) {
-        toast.error(`Error cargando perfiles: ${error.message}`);
-        
-        // Si es error de autenticación, cerrar sesión
-        if (error.message.includes('Token') || error.message.includes('401') || error.message.includes('403')) {
-          toast.error('Sesión expirada, cerrando sesión...');
-          handleLogout();
-        }
+  const loadProfiles = () => {
+    // Datos de ejemplo (en producción vendría del backend)
+    const mockProfiles: Profile[] = [
+      {
+        id: '1',
+        nombre: 'Juan Pérez',
+        pin: '1234',
+        propietario: 'Netflix 01',
+        correo: 'juan@email.com',
+        plataforma: 'Netflix',
+        monto: 12,
+        fecha_pago: 5,
+        estado_pago: 'pagado'
+      },
+      {
+        id: '2',
+        nombre: 'María García',
+        pin: '5678',
+        propietario: 'Spotify Premium',
+        correo: 'maria@email.com',
+        plataforma: 'Spotify',
+        monto: 10,
+        fecha_pago: 10,
+        estado_pago: 'pendiente'
+      },
+      {
+        id: '3',
+        nombre: 'Carlos López',
+        pin: '',
+        propietario: 'Netflix 02',
+        correo: 'carlos@email.com',
+        plataforma: 'Netflix',
+        monto: 12,
+        fecha_pago: 3,
+        estado_pago: 'pendiente'
       }
-    } finally {
-      setIsLoading(false);
-    }
+    ];
+    setProfiles(mockProfiles);
   };
 
-  const handleAddProfile = async (profileData: Omit<Profile, 'id'>) => {
-    try {
-      console.log('➕ Creando perfil:', profileData.nombre);
-      
-      const newProfile = await createProfile(profileData);
-      console.log('✅ Perfil creado:', newProfile);
-      
-      // Recargar todos los perfiles para asegurar sincronización
-      await loadProfiles();
-      toast.success('Perfil agregado exitosamente');
-      setShowForm(false);
-    } catch (error) {
-      console.error('❌ Error creando perfil:', error);
-      
-      if (error instanceof Error) {
-        toast.error(`Error creando perfil: ${error.message}`);
-      }
-    }
+  const handleAddProfile = (profileData: Omit<Profile, 'id'>) => {
+    const newProfile: Profile = {
+      ...profileData,
+      id: Date.now().toString()
+    };
+    setProfiles([...profiles, newProfile]);
+    toast.success('Perfil agregado exitosamente');
+    setShowForm(false);
   };
 
-  const handleEditProfile = async (profileData: Omit<Profile, 'id'>) => {
-    if (!editingProfile) return;
-    
-    try {
-      console.log('✏️ Actualizando perfil:', editingProfile.id);
-      
-      const updatedProfile = await updateProfile(editingProfile.id, profileData);
-      console.log('✅ Perfil actualizado:', updatedProfile);
-      
-      // Recargar todos los perfiles para asegurar sincronización
-      await loadProfiles();
+  const handleEditProfile = (profileData: Omit<Profile, 'id'>) => {
+    if (editingProfile) {
+      const updatedProfiles = profiles.map(p => 
+        p.id === editingProfile.id ? { ...profileData, id: editingProfile.id } : p
+      );
+      setProfiles(updatedProfiles);
       toast.success('Perfil actualizado exitosamente');
       setEditingProfile(null);
       setShowForm(false);
-    } catch (error) {
-      console.error('❌ Error actualizando perfil:', error);
-      
-      if (error instanceof Error) {
-        toast.error(`Error actualizando perfil: ${error.message}`);
-      }
     }
   };
 
-  const handleDeleteProfile = async (id: string) => {
-    try {
-      console.log('🗑️ Eliminando perfil:', id);
-      
-      await deleteProfile(id);
-      console.log('✅ Perfil eliminado');
-      
-      // Recargar todos los perfiles para asegurar sincronización
-      await loadProfiles();
-      toast.success('Perfil eliminado exitosamente');
-    } catch (error) {
-      console.error('❌ Error eliminando perfil:', error);
-      
-      if (error instanceof Error) {
-        toast.error(`Error eliminando perfil: ${error.message}`);
-      }
-    }
+  const handleDeleteProfile = (id: string) => {
+    setProfiles(profiles.filter(p => p.id !== id));
+    toast.success('Perfil eliminado exitosamente');
   };
 
-  const handlePaymentStatusChange = async (id: string, status: 'pagado' | 'pendiente') => {
-    try {
-      console.log('💳 Cambiando estado de pago:', id, '->', status);
-      
-      await updatePaymentStatus(id, status);
-      console.log('✅ Estado actualizado');
-      
-      // Recargar todos los perfiles para asegurar sincronización
-      await loadProfiles();
-      toast.success(`Estado actualizado a ${status}`);
-    } catch (error) {
-      console.error('❌ Error actualizando estado:', error);
-      
-      if (error instanceof Error) {
-        toast.error(`Error actualizando estado: ${error.message}`);
-      }
-    }
-  };
-
-  const handleLogout = () => {
-    logout(); // Limpiar token del localStorage
-    onLogout(); // Notificar al componente padre
-    toast.success('Sesión cerrada correctamente');
+  const handlePaymentStatusChange = (id: string, status: 'pagado' | 'pendiente') => {
+    const updatedProfiles = profiles.map(p => 
+      p.id === id ? { ...p, estado_pago: status } : p
+    );
+    setProfiles(updatedProfiles);
+    toast.success(`Estado actualizado a ${status}`);
   };
 
   const getPaymentStats = (): PaymentStats => {
@@ -180,28 +134,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const upcomingPayments = getUpcomingPayments();
   const platforms = ['todas', ...Array.from(new Set(profiles.map(p => p.plataforma)))];
 
-  if (isLoading) {
-    return (
-      <div className="dashboard">
-        <div className="loading-container">
-          <h2>🔄 Cargando datos desde PostgreSQL...</h2>
-          <p>Conectando con la base de datos...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="dashboard">
       <header className="dashboard-header">
         <div className="header-content">
-          <h1>Administrador de pagos</h1>
-          <div className="header-actions">
-            <small>🐘 PostgreSQL: {profiles.length} perfiles</small>
-            <button onClick={handleLogout} className="logout-button">
-              Cerrar Sesión
-            </button>
-          </div>
+          <h1>Administrador de pagos </h1>
+          <button onClick={onLogout} className="logout-button">
+            Cerrar Sesión
+          </button>
         </div>
       </header>
 
@@ -263,44 +203,20 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
               ))}
             </select>
           </div>
-          
-          <button 
-            onClick={loadProfiles} 
-            className="refresh-button"
-            title="Actualizar datos desde PostgreSQL"
-          >
-            🔄 Actualizar
-          </button>
         </div>
 
-        {/* Mensaje si no hay perfiles */}
-        {profiles.length === 0 && !isLoading && (
-          <div className="empty-state">
-            <h3>📋 No hay perfiles en la base de datos</h3>
-            <p>Agrega tu primer perfil para comenzar a gestionar los pagos</p>
-            <button 
-              onClick={() => setShowForm(true)} 
-              className="add-button"
-            >
-              ➕ Agregar Primer Perfil
-            </button>
-          </div>
-        )}
-
         {/* Tabla de perfiles */}
-        {profiles.length > 0 && (
-          <PaymentTable
-            profiles={profiles.filter(p => 
-              selectedPlatform === 'todas' || p.plataforma === selectedPlatform
-            )}
-            onEdit={(profile) => {
-              setEditingProfile(profile);
-              setShowForm(true);
-            }}
-            onDelete={handleDeleteProfile}
-            onPaymentStatusChange={handlePaymentStatusChange}
-          />
-        )}
+        <PaymentTable
+          profiles={profiles.filter(p => 
+            selectedPlatform === 'todas' || p.plataforma === selectedPlatform
+          )}
+          onEdit={(profile) => {
+            setEditingProfile(profile);
+            setShowForm(true);
+          }}
+          onDelete={handleDeleteProfile}
+          onPaymentStatusChange={handlePaymentStatusChange}
+        />
       </main>
 
       {/* Modal de formulario */}

@@ -1,53 +1,38 @@
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import LoginForm from '../components/LoginForm';
 import Dashboard from '../components/Dashboard';
-import { verifyToken } from '../services/api';
+import '../styles/app.css';
 
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [authToken, setAuthToken] = useState<string | null>(null);
 
   useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+    // Verificar si hay un token guardado
     const token = localStorage.getItem('authToken');
     if (token) {
-      try {
-        const isValid = await verifyToken();
-        setIsAuthenticated(isValid);
-      } catch {
-        localStorage.removeItem('authToken');
-        setIsAuthenticated(false);
-      }
+      setAuthToken(token);
+      setIsAuthenticated(true);
     }
-    setIsLoading(false);
-  };
+  }, []);
 
-  const handleLogin = () => {
+  const handleLogin = (token: string) => {
+    setAuthToken(token);
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
+    setAuthToken(null);
     setIsAuthenticated(false);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Cargando...</div>
-      </div>
-    );
+  if (!isAuthenticated) {
+    return <LoginForm onLogin={handleLogin} />;
   }
 
-  return isAuthenticated ? (
-    <Dashboard onLogout={handleLogout} />
-  ) : (
-    <LoginForm onLogin={handleLogin} />
-  );
+  return <Dashboard onLogout={handleLogout} />;
 };
 
 export default Index;
