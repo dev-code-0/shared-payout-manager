@@ -5,6 +5,13 @@ import ProfileForm from './ProfileForm';
 import PaymentTable from './PaymentTable';
 import { toast } from 'sonner';
 import { Profile, PaymentStats } from '../types';
+import { 
+  getProfiles, 
+  createProfile, 
+  updateProfile, 
+  deleteProfile, 
+  updatePaymentStatus 
+} from '../services/api';
 
 interface DashboardProps {
   onLogout: () => void;
@@ -15,85 +22,85 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string>('todas');
+  const [loading, setLoading] = useState(true);
 
-  // Cargar datos iniciales
+  // Cargar datos reales desde la API
   useEffect(() => {
     loadProfiles();
   }, []);
 
-  const loadProfiles = () => {
-    // Datos de ejemplo (en producción vendría del backend)
-    const mockProfiles: Profile[] = [
-      {
-        id: '1',
-        nombre: 'Juan Pérez',
-        pin: '1234',
-        propietario: 'Netflix 01',
-        correo: 'juan@email.com',
-        plataforma: 'Netflix',
-        monto: 12,
-        fecha_pago: 5,
-        estado_pago: 'pagado'
-      },
-      {
-        id: '2',
-        nombre: 'María García',
-        pin: '5678',
-        propietario: 'Spotify Premium',
-        correo: 'maria@email.com',
-        plataforma: 'Spotify',
-        monto: 10,
-        fecha_pago: 10,
-        estado_pago: 'pendiente'
-      },
-      {
-        id: '3',
-        nombre: 'Carlos López',
-        pin: '',
-        propietario: 'Netflix 02',
-        correo: 'carlos@email.com',
-        plataforma: 'Netflix',
-        monto: 12,
-        fecha_pago: 3,
-        estado_pago: 'pendiente'
-      }
-    ];
-    setProfiles(mockProfiles);
-  };
-
-  const handleAddProfile = (profileData: Omit<Profile, 'id'>) => {
-    const newProfile: Profile = {
-      ...profileData,
-      id: Date.now().toString()
-    };
-    setProfiles([...profiles, newProfile]);
-    toast.success('Perfil agregado exitosamente');
-    setShowForm(false);
-  };
-
-  const handleEditProfile = (profileData: Omit<Profile, 'id'>) => {
-    if (editingProfile) {
-      const updatedProfiles = profiles.map(p => 
-        p.id === editingProfile.id ? { ...profileData, id: editingProfile.id } : p
-      );
-      setProfiles(updatedProfiles);
-      toast.success('Perfil actualizado exitosamente');
-      setEditingProfile(null);
-      setShowForm(false);
+  const loadProfiles = async () => {
+    try {
+      setLoading(true);
+      console.log('🔄 Cargando perfiles desde la base de datos...');
+      const profilesData = await getProfiles();
+      setProfiles(profilesData);
+      console.log('✅ Perfiles cargados:', profilesData.length);
+    } catch (error) {
+      console.error('❌ Error cargando perfiles:', error);
+      toast.error('Error al cargar los perfiles. Verifica que el backend esté funcionando.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDeleteProfile = (id: string) => {
-    setProfiles(profiles.filter(p => p.id !== id));
-    toast.success('Perfil eliminado exitosamente');
+  const handleAddProfile = async (profileData: Omit<Profile, 'id'>) => {
+    try {
+      console.log('➕ Creando nuevo perfil...');
+      const newProfile = await createProfile(profileData);
+      setProfiles([...profiles, newProfile]);
+      toast.success('Perfil agregado exitosamente');
+      setShowForm(false);
+    } catch (error) {
+      console.error('❌ Error creando perfil:', error);
+      toast.error('Error al crear el perfil');
+    }
   };
 
-  const handlePaymentStatusChange = (id: string, status: 'pagado' | 'pendiente') => {
-    const updatedProfiles = profiles.map(p => 
-      p.id === id ? { ...p, estado_pago: status } : p
-    );
-    setProfiles(updatedProfiles);
-    toast.success(`Estado actualizado a ${status}`);
+  const handleEditProfile = async (profileData: Omit<Profile, 'id'>) => {
+    if (editingProfile) {
+      try {
+        console.log('✏️ Actualizando perfil:', editingProfile.id);
+        const updatedProfile = await updateProfile(editingProfile.id, profileData);
+        const updatedProfiles = profiles.map(p => 
+          p.id === editingProfile.id ? updatedProfile : p
+        );
+        setProfiles(updatedProfiles);
+        toast.success('Perfil actualizado exitosamente');
+        setEditingProfile(null);
+        setShowForm(false);
+      } catch (error) {
+        console.error('❌ Error actualizando perfil:', error);
+        toast.error('Error al actualizar el perfil');
+      }
+    }
+  };
+
+  const handleDeleteProfile = async (id: string) => {
+    try {
+      console.log('🗑️ Eliminando perfil:', id);
+      await deleteProfile(id);
+      setProfiles(profiles.filter(p => p.id !== id));
+      toast.success('Perfil eliminado exitosamente');
+    } catch (error) {
+      console.error('❌ Error eliminando perfil:', error);
+      toast.error('Error al eliminar el perfil');
+    }
+  };
+
+  const handlePaymentStatusChange = async (id: string, status: 'pagado' | 'pendiente') => {
+    try {
+      console.log('💳 Cambiando estado de pago:', id, '->', status);
+      await updatePaymentStatus(id, status);
+      const updatedProfiles = profiles.map(p => 
+        p.id === id ? { ...p, estado_pago: status } : p
+      );
+      setProfiles(updatedProfiles);
+      toast.success(`Estado actualizado a ${status}`);
+    } catch (error) {
+      console.error('❌ Error actualizando estado:', error);
+      toast.error('Error al actualizar el estado de pago');
+    }
   };
 
   const getPaymentStats = (): PaymentStats => {
@@ -130,6 +137,29 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     });
   };
 
+  if (loading) {
+    return (
+      <div className="dashboard">
+        <header className="dashboard-header">
+          <div className="header-content">
+            <h1>Administrador de pagos</h1>
+            <button onClick={onLogout} className="logout-button">
+              Cerrar Sesión
+            </button>
+          </div>
+        </header>
+        <main className="dashboard-main">
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+            <div>
+              <h3>🔄 Cargando datos...</h3>
+              <p>Conectando con la base de datos PostgreSQL</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   const stats = getPaymentStats();
   const upcomingPayments = getUpcomingPayments();
   const platforms = ['todas', ...Array.from(new Set(profiles.map(p => p.plataforma)))];
@@ -138,7 +168,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     <div className="dashboard">
       <header className="dashboard-header">
         <div className="header-content">
-          <h1>Administrador de pagos </h1>
+          <h1>Administrador de pagos</h1>
           <button onClick={onLogout} className="logout-button">
             Cerrar Sesión
           </button>
@@ -205,18 +235,28 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
           </div>
         </div>
 
+        {/* Estado cuando no hay perfiles */}
+        {profiles.length === 0 && !loading && (
+          <div className="empty-state">
+            <h3>📋 No hay perfiles registrados</h3>
+            <p>Los datos se cargan desde PostgreSQL. Agrega tu primer perfil para comenzar.</p>
+          </div>
+        )}
+
         {/* Tabla de perfiles */}
-        <PaymentTable
-          profiles={profiles.filter(p => 
-            selectedPlatform === 'todas' || p.plataforma === selectedPlatform
-          )}
-          onEdit={(profile) => {
-            setEditingProfile(profile);
-            setShowForm(true);
-          }}
-          onDelete={handleDeleteProfile}
-          onPaymentStatusChange={handlePaymentStatusChange}
-        />
+        {profiles.length > 0 && (
+          <PaymentTable
+            profiles={profiles.filter(p => 
+              selectedPlatform === 'todas' || p.plataforma === selectedPlatform
+            )}
+            onEdit={(profile) => {
+              setEditingProfile(profile);
+              setShowForm(true);
+            }}
+            onDelete={handleDeleteProfile}
+            onPaymentStatusChange={handlePaymentStatusChange}
+          />
+        )}
       </main>
 
       {/* Modal de formulario */}
