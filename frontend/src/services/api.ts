@@ -3,7 +3,10 @@ import axios from 'axios';
 import { Profile, LoginCredentials, LoginResponse } from '../types';
 
 // URL del backend (desde variables de entorno o fallback)
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.MODE === 'production' 
+    ? 'https://shared-payout-manager.onrender.com' 
+    : 'http://localhost:3000');
 
 console.log('🌐 API Base URL configurada:', API_BASE_URL);
 
