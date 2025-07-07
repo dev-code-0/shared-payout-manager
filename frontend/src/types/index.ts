@@ -19,8 +19,12 @@ export interface PaymentStats {
   totalCount: number;
 }
 
-export interface User {
-  id: string;
-  username: string;
+export interface LoginResponse {
   token: string;
+  message: string;
+}
+
+export interface LoginCredentials {
+  username: string;
+  password: string;
 }
