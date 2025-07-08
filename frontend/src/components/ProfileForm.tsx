@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Profile } from '../types';
 
@@ -15,7 +14,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profile, onSubmit, onCancel }
     propietario: '',
     correo: '',
     plataforma: 'Netflix',
-    monto: 0,
+    monto: '',
     fecha_pago: 1,
     estado_pago: 'pendiente' as 'pagado' | 'pendiente'
   });
@@ -28,7 +27,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profile, onSubmit, onCancel }
         propietario: profile.propietario,
         correo: profile.correo,
         plataforma: profile.plataforma,
-        monto: profile.monto,
+        monto: profile.monto.toString(),
         fecha_pago: profile.fecha_pago,
         estado_pago: profile.estado_pago
       });
@@ -37,14 +36,19 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profile, onSubmit, onCancel }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit({
+      ...formData,
+      monto: Number(formData.monto)
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'monto' || name === 'fecha_pago' ? Number(value) : value
+      [name]: name === 'monto' || name === 'fecha_pago'
+        ? value === '' ? '' : Number(value)
+        : value
     }));
   };
 
