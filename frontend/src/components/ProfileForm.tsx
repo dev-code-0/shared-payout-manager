@@ -67,7 +67,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profile, onSubmit, onCancel }
               value={formData.nombre}
               onChange={handleChange}
               required
-              placeholder="Juan Pérez"
             />
           </div>
 
@@ -80,7 +79,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profile, onSubmit, onCancel }
               value={formData.propietario}
               onChange={handleChange}
               required
-              placeholder="Netflix 01, Spotify Premium, etc."
             />
           </div>
 
@@ -92,7 +90,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profile, onSubmit, onCancel }
               type="text"
               value={formData.pin}
               onChange={handleChange}
-              placeholder="Código PIN del perfil"
             />
           </div>
 
@@ -105,7 +102,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profile, onSubmit, onCancel }
               value={formData.correo}
               onChange={handleChange}
               required
-              placeholder="correo@ejemplo.com"
             />
           </div>
 
@@ -139,7 +135,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profile, onSubmit, onCancel }
               required
               min="0"
               step="1"
-              placeholder="10"
             />
           </div>
 
