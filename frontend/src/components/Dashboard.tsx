@@ -34,8 +34,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       setLoading(true);
       console.log('🔄 Cargando perfiles desde la base de datos...');
       const profilesData = await getProfiles();
-      setProfiles(profilesData);
-      console.log('✅ Perfiles cargados:', profilesData.length);
+      // Asegurarse de que monto sea número
+      const sanitizedProfiles = profilesData.map(p => ({ ...p, monto: Number(p.monto) }));
+      setProfiles(sanitizedProfiles);
+      console.log('✅ Perfiles cargados:', sanitizedProfiles.length);
     } catch (error) {
       console.error('❌ Error cargando perfiles:', error);
       toast.error('Error al cargar los perfiles. Verifica que el backend esté funcionando.');
@@ -108,10 +110,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       ? profiles 
       : profiles.filter(p => p.plataforma === selectedPlatform);
 
-    const totalAmount = filteredProfiles.reduce((sum, p) => sum + p.monto, 0);
+    const totalAmount = filteredProfiles.reduce((sum, p) => sum + Number(p.monto), 0);
     const paidAmount = filteredProfiles
       .filter(p => p.estado_pago === 'pagado')
-      .reduce((sum, p) => sum + p.monto, 0);
+      .reduce((sum, p) => sum + Number(p.monto), 0);
     const pendingCount = filteredProfiles.filter(p => p.estado_pago === 'pendiente').length;
 
     return {
@@ -194,15 +196,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
           <div className="stats-grid">
             <div className="stat-card total">
               <h3>Total a Recaudar</h3>
-              <p>S/{stats.totalAmount.toLocaleString()}</p>
+              <p>S/{stats.totalAmount.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             </div>
             <div className="stat-card paid">
               <h3>Ya Pagado</h3>
-              <p>S/{stats.paidAmount.toLocaleString()}</p>
+              <p>S/{stats.paidAmount.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             </div>
             <div className="stat-card pending">
               <h3>Pendiente</h3>
-              <p>S/{stats.pendingAmount.toLocaleString()}</p>
+              <p>S/{stats.pendingAmount.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             </div>
             <div className="stat-card count">
               <h3>Perfiles Pendientes</h3>
