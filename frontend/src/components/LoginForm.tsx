@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import { toast } from 'sonner';
+import { login as loginService } from '../services/api';
 
 interface LoginFormProps {
   onLogin: (token: string) => void;
@@ -18,17 +18,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     setIsLoading(true);
 
     try {
-      // Simulamos autenticación (en producción sería una llamada al backend)
-      if (credentials.username === 'admin' && credentials.password === 'admin123') {
-        const token = 'fake-jwt-token-' + Date.now();
-        localStorage.setItem('authToken', token);
-        onLogin(token);
-        toast.success('Inicio de sesión exitoso');
-      } else {
-        toast.error('Credenciales incorrectas');
-      }
+      // Llamada real al backend para autenticación
+      const response = await loginService(credentials);
+      const token = response.token;
+      localStorage.setItem('authToken', token);
+      onLogin(token);
+      toast.success('Inicio de sesión exitoso');
     } catch (error) {
-      toast.error('Error al iniciar sesión');
+      toast.error('Credenciales incorrectas o error al iniciar sesión');
     } finally {
       setIsLoading(false);
     }
