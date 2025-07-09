@@ -41,7 +41,6 @@ const authMiddleware = (req, res, next) => {
         
         next();
     } catch (error) {
-        console.error('❌ Error en autenticación:', error);
         
         if (error.name === 'TokenExpiredError') {
             return res.status(401).json({

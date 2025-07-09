@@ -119,7 +119,6 @@ app.use('*', (req, res) => {
 
 // Middleware global de manejo de errores
 app.use((error, req, res, next) => {
-    console.error('❌ Error del servidor:', error);
     
     res.status(error.status || 500).json({
         success: false,
@@ -147,7 +146,6 @@ const startServer = async () => {
             }
         });
     } catch (error) {
-        console.error('❌ Error iniciando servidor:', error);
         process.exit(1);
     }
 };

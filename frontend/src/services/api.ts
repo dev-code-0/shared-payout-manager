@@ -58,13 +58,11 @@ const apiRequest = async <T>(
     try {
       data = await response.json();
     } catch (parseError) {
-      console.error('❌ Error parsing JSON response:', parseError);
       throw new Error('Invalid JSON response from server');
     }
     
     
     if (!response.ok) {
-      console.error('❌ API Error:', data);
       throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
     }
     

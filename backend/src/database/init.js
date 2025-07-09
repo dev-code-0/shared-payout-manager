@@ -68,7 +68,6 @@ const initDatabase = async () => {
         }
 
     } catch (error) {
-        console.error('❌ Error inicializando base de datos:', error);
         throw error;
     }
 };

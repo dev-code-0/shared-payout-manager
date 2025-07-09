@@ -37,7 +37,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       const sanitizedProfiles = profilesData.map(p => ({ ...p, monto: Number(p.monto) }));
       setProfiles(sanitizedProfiles);
     } catch (error) {
-      console.error('❌ Error cargando perfiles:', error);
       toast.error('Error al cargar los perfiles. Verifica que el backend esté funcionando.');
     } finally {
       setLoading(false);
@@ -51,7 +50,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       toast.success('Perfil agregado exitosamente');
       setShowForm(false);
     } catch (error) {
-      console.error('Error creando perfil:', error);
       toast.error('Error al crear el perfil');
     }
   };
@@ -68,7 +66,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         setEditingProfile(null);
         setShowForm(false);
       } catch (error) {
-        console.error('❌ Error actualizando perfil:', error);
         toast.error('Error al actualizar el perfil');
       }
     }
@@ -80,7 +77,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       setProfiles(profiles.filter(p => p.id !== id));
       toast.success('Perfil eliminado exitosamente');
     } catch (error) {
-      console.error('❌ Error eliminando perfil:', error);
       toast.error('Error al eliminar el perfil');
     }
   };
@@ -94,7 +90,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       setProfiles(updatedProfiles);
       toast.success(`Estado actualizado a ${status}`);
     } catch (error) {
-      console.error('❌ Error actualizando estado:', error);
       toast.error('Error al actualizar el estado de pago');
     }
   };

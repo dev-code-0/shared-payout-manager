@@ -30,7 +30,6 @@ export const getProfiles = async (req, res) => {
             data: result.rows
         });
     } catch (error) {
-        console.error('❌ Error obteniendo perfiles:', error);
         res.status(500).json({
             success: false,
             message: 'Error obteniendo perfiles'
@@ -84,7 +83,6 @@ export const createProfile = async (req, res) => {
             data: newProfile
         });
     } catch (error) {
-        console.error('❌ Error creando perfil:', error);
         res.status(500).json({
             success: false,
             message: 'Error creando perfil'
@@ -130,7 +128,6 @@ export const updateProfile = async (req, res) => {
             data: updatedProfile
         });
     } catch (error) {
-        console.error('❌ Error actualizando perfil:', error);
         res.status(500).json({
             success: false,
             message: 'Error actualizando perfil'
@@ -171,7 +168,6 @@ export const deleteProfile = async (req, res) => {
             message: 'Perfil eliminado exitosamente'
         });
     } catch (error) {
-        console.error('❌ Error eliminando perfil:', error);
         res.status(500).json({
             success: false,
             message: 'Error eliminando perfil'
@@ -225,7 +221,6 @@ export const updatePaymentStatus = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('❌ Error actualizando estado:', error);
         res.status(500).json({
             success: false,
             message: 'Error actualizando estado de pago'
