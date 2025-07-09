@@ -508,6 +508,7 @@ body {
 @media (max-width: 480px) {
   .header-content {
     padding: 0 0.5rem;
+    
   }
   
   .header-content h1 {
