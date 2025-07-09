@@ -15,7 +15,6 @@ import bcrypt from 'bcryptjs';
 
 const initDatabase = async () => {
     try {
-        console.log('🔧 Inicializando base de datos PostgreSQL...');
 
         // Crear tabla de usuarios
         const createUsersTable = `
@@ -49,10 +48,8 @@ const initDatabase = async () => {
 
         // Ejecutar creación de tablas
         await query(createUsersTable);
-        console.log('✅ Tabla users creada/verificada');
 
         await query(createProfilesTable);
-        console.log('✅ Tabla profiles creada/verificada');
 
         // Crear usuario admin por defecto
         const defaultUsername = process.env.DEFAULT_USERNAME || 'admin';
@@ -67,13 +64,9 @@ const initDatabase = async () => {
                 'INSERT INTO users (username, password) VALUES ($1, $2)',
                 [defaultUsername, hashedPassword]
             );
-            console.log('👤 Usuario admin creado con éxito');
-            console.log(`📝 Credenciales: ${defaultUsername} / ${defaultPassword}`);
         } else {
-            console.log('👤 Usuario admin ya existe');
         }
 
-        console.log('🎉 Base de datos inicializada correctamente');
     } catch (error) {
         console.error('❌ Error inicializando base de datos:', error);
         throw error;

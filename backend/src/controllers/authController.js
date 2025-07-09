@@ -57,7 +57,6 @@ export const login = async (req, res) => {
             }
         );
 
-        console.log(`✅ Usuario ${username} autenticado correctamente`);
 
         res.json({
             success: true,

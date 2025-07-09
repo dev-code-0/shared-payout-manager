@@ -73,7 +73,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Logging middleware
 app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
     next();
 });
 
@@ -112,7 +111,6 @@ app.use('/api/profiles', profileRoutes);
 
 // Middleware para rutas no encontradas
 app.use('*', (req, res) => {
-    console.log(`❌ Ruta no encontrada: ${req.method} ${req.originalUrl}`);
     res.status(404).json({
         success: false,
         message: `Ruta no encontrada: ${req.method} ${req.originalUrl}`
@@ -138,21 +136,14 @@ app.use((error, req, res, next) => {
 const startServer = async () => {
     try {
         // Inicializar base de datos PostgreSQL
-        console.log('🔧 Inicializando base de datos PostgreSQL...');
         await initDatabase();
-        console.log('✅ Base de datos PostgreSQL inicializada');
 
         // Iniciar servidor
         app.listen(PORT, () => {
-            console.log('🚀 Servidor iniciado exitosamente');
-            console.log(`🌐 Backend URL: http://localhost:${PORT}`);
-            console.log(`📊 Health check: http://localhost:${PORT}/health`);
-            console.log(`🔑 API endpoint: http://localhost:${PORT}/api`);
-            console.log(`🗄️ Base de datos: PostgreSQL`);
-            console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
+
             
             if (process.env.NODE_ENV === 'production') {
-                console.log('🔗 Frontend URL: https://shared-payout-manager.vercel.app');
+                console.log('Frontend URL: https://shared-payout-manager.vercel.app');
             }
         });
     } catch (error) {
@@ -166,11 +157,9 @@ startServer();
 
 // Manejo graceful de cierre del servidor
 process.on('SIGTERM', () => {
-    console.log('🛑 SIGTERM recibido, cerrando servidor...');
     process.exit(0);
 });
 
 process.on('SIGINT', () => {
-    console.log('🛑 SIGINT recibido, cerrando servidor...');
     process.exit(0);
 });

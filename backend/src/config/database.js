@@ -20,7 +20,6 @@ const connectionConfig = {
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 };
 
-console.log('🗄️ Conectando a base de datos PostgreSQL...');
 
 // Crear cliente PostgreSQL
 const db = new Client(connectionConfig);
@@ -28,10 +27,8 @@ const db = new Client(connectionConfig);
 // Conectar a la base de datos
 db.connect()
     .then(() => {
-        console.log('✅ Conectado a base de datos PostgreSQL');
     })
     .catch(err => {
-        console.error('❌ Error conectando a base de datos:', err.message);
         process.exit(1);
     });
 

@@ -32,12 +32,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const loadProfiles = async () => {
     try {
       setLoading(true);
-      console.log('🔄 Cargando perfiles desde la base de datos...');
       const profilesData = await getProfiles();
       // Asegurarse de que monto sea número
       const sanitizedProfiles = profilesData.map(p => ({ ...p, monto: Number(p.monto) }));
       setProfiles(sanitizedProfiles);
-      console.log('✅ Perfiles cargados:', sanitizedProfiles.length);
     } catch (error) {
       console.error('❌ Error cargando perfiles:', error);
       toast.error('Error al cargar los perfiles. Verifica que el backend esté funcionando.');
@@ -48,13 +46,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
 
   const handleAddProfile = async (profileData: Omit<Profile, 'id'>) => {
     try {
-      console.log('➕ Creando nuevo perfil...');
       const newProfile = await createProfile(profileData);
       setProfiles([...profiles, newProfile]);
       toast.success('Perfil agregado exitosamente');
       setShowForm(false);
     } catch (error) {
-      console.error('❌ Error creando perfil:', error);
+      console.error('Error creando perfil:', error);
       toast.error('Error al crear el perfil');
     }
   };
@@ -62,7 +59,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const handleEditProfile = async (profileData: Omit<Profile, 'id'>) => {
     if (editingProfile) {
       try {
-        console.log('✏️ Actualizando perfil:', editingProfile.id);
         const updatedProfile = await updateProfile(editingProfile.id, profileData);
         const updatedProfiles = profiles.map(p => 
           p.id === editingProfile.id ? updatedProfile : p
@@ -80,7 +76,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
 
   const handleDeleteProfile = async (id: string) => {
     try {
-      console.log('🗑️ Eliminando perfil:', id);
       await deleteProfile(id);
       setProfiles(profiles.filter(p => p.id !== id));
       toast.success('Perfil eliminado exitosamente');
@@ -92,7 +87,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
 
   const handlePaymentStatusChange = async (id: string, status: 'pagado' | 'pendiente') => {
     try {
-      console.log('💳 Cambiando estado de pago:', id, '->', status);
       await updatePaymentStatus(id, status);
       const updatedProfiles = profiles.map(p => 
         p.id === id ? { ...p, estado_pago: status } : p

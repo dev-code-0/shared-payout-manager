@@ -45,4 +45,3 @@ export const getAuthHeaders = () => {
 // Configuración de timeout para requests
 export const REQUEST_TIMEOUT = 10000; // 10 segundos
 
-console.log('🔧 API configurada para:', API_BASE_URL);

@@ -22,7 +22,7 @@ export const getProfiles = async (req, res) => {
             [userId]
         );
 
-        console.log(`📋 ${result.rows.length} perfiles obtenidos para usuario ${req.user.username}`);
+        (`📋 ${result.rows.length} perfiles obtenidos para usuario ${req.user.username}`);
 
         res.json({
             success: true,
@@ -77,7 +77,6 @@ export const createProfile = async (req, res) => {
 
         const newProfile = result.rows[0];
 
-        console.log(`✅ Perfil creado: ${nombre} - ${plataforma} (ID: ${newProfile.id})`);
 
         res.status(201).json({
             success: true,
@@ -124,7 +123,6 @@ export const updateProfile = async (req, res) => {
 
         const updatedProfile = result.rows[0];
 
-        console.log(`✅ Perfil actualizado: ${nombre} - ${plataforma} (ID: ${profileId})`);
 
         res.json({
             success: true,
@@ -167,7 +165,6 @@ export const deleteProfile = async (req, res) => {
             [profileId, userId]
         );
 
-        console.log(`🗑️ Perfil eliminado: ${profile.nombre} - ${profile.plataforma} (ID: ${profileId})`);
 
         res.json({
             success: true,
@@ -218,7 +215,6 @@ export const updatePaymentStatus = async (req, res) => {
             [estado_pago, profileId, userId]
         );
 
-        console.log(`💳 Estado actualizado: ${profile.nombre} -> ${estado_pago}`);
 
         res.json({
             success: true,

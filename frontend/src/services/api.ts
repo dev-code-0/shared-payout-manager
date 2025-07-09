@@ -38,11 +38,9 @@ const apiRequest = async <T>(
 ): Promise<ApiResponse<T>> => {
   const url = `${API_BASE_URL}${endpoint}`;
   
-  console.log(`🌐 API Request: ${options.method || 'GET'} ${url}`);
-  console.log('📋 Headers:', getAuthHeaders());
   
   if (options.body) {
-    console.log('📦 Body:', options.body);
+    console.log('conectado');
   }
   
   try {
@@ -56,8 +54,6 @@ const apiRequest = async <T>(
       signal: AbortSignal.timeout(REQUEST_TIMEOUT),
     });
 
-    console.log(`📡 Response Status: ${response.status} ${response.statusText}`);
-    
     let data;
     try {
       data = await response.json();
@@ -66,17 +62,14 @@ const apiRequest = async <T>(
       throw new Error('Invalid JSON response from server');
     }
     
-    console.log('📋 Response Data:', data);
     
     if (!response.ok) {
       console.error('❌ API Error:', data);
       throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
     }
     
-    console.log('✅ API Success:', data.message);
     return data;
   } catch (error) {
-    console.error('❌ API Request failed:', error);
     
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
@@ -130,9 +123,7 @@ export const verifyToken = async (): Promise<boolean> => {
  * Obtener todos los perfiles del usuario
  */
 export const getProfiles = async (): Promise<Profile[]> => {
-  console.log('🔍 Obteniendo perfiles desde PostgreSQL...');
   const response = await apiRequest<Profile[]>(API_ENDPOINTS.PROFILES);
-  console.log('✅ Perfiles obtenidos desde base de datos:', response.data?.length || 0);
   return response.data || [];
 };
 
@@ -140,13 +131,11 @@ export const getProfiles = async (): Promise<Profile[]> => {
  * Crear nuevo perfil
  */
 export const createProfile = async (profileData: Omit<Profile, 'id'>): Promise<Profile> => {
-  console.log('➕ Creando perfil en PostgreSQL:', profileData.nombre);
   const response = await apiRequest<Profile>(API_ENDPOINTS.PROFILES, {
     method: 'POST',
     body: JSON.stringify(profileData),
   });
   
-  console.log('✅ Perfil creado en base de datos:', response.data);
   return response.data!;
 };
 
@@ -154,13 +143,13 @@ export const createProfile = async (profileData: Omit<Profile, 'id'>): Promise<P
  * Actualizar perfil existente
  */
 export const updateProfile = async (id: string, profileData: Omit<Profile, 'id'>): Promise<Profile> => {
-  console.log('✏️ Actualizando perfil en PostgreSQL:', id);
+  console.log('Actualizando perfil:', id);
   const response = await apiRequest<Profile>(API_ENDPOINTS.PROFILE_BY_ID(id), {
     method: 'PUT',
     body: JSON.stringify(profileData),
   });
   
-  console.log('✅ Perfil actualizado en base de datos:', response.data);
+  console.log('Perfil actualizado en base de datos:', response.data);
   return response.data!;
 };
 
@@ -168,11 +157,11 @@ export const updateProfile = async (id: string, profileData: Omit<Profile, 'id'>
  * Eliminar perfil
  */
 export const deleteProfile = async (id: string): Promise<void> => {
-  console.log('🗑️ Eliminando perfil de PostgreSQL:', id);
+  console.log('Eliminando perfil:', id);
   await apiRequest(API_ENDPOINTS.PROFILE_BY_ID(id), {
     method: 'DELETE',
   });
-  console.log('✅ Perfil eliminado de base de datos');
+  console.log('Perfil eliminado de base de datos');
 };
 
 /**
@@ -182,12 +171,10 @@ export const updatePaymentStatus = async (
   id: string, 
   status: 'pagado' | 'pendiente'
 ): Promise<void> => {
-  console.log('💳 Actualizando estado de pago en PostgreSQL:', id, '->', status);
   await apiRequest(API_ENDPOINTS.UPDATE_PAYMENT_STATUS(id), {
     method: 'PATCH',
     body: JSON.stringify({ estado_pago: status }),
   });
-  console.log('✅ Estado de pago actualizado en base de datos');
 };
 
 // =====================
@@ -199,5 +186,4 @@ export const updatePaymentStatus = async (
  */
 export const logout = (): void => {
   localStorage.removeItem('authToken');
-  console.log('🚪 Sesión cerrada - token eliminado');
 };
