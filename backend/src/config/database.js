@@ -27,8 +27,10 @@ const db = new Client(connectionConfig);
 // Conectar a la base de datos
 db.connect()
     .then(() => {
+        console.log('✅ Conectado a PostgreSQL');
     })
     .catch(err => {
+        console.error('❌ Error conectando a PostgreSQL:', err.message);
         process.exit(1);
     });
 

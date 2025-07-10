@@ -22,6 +22,10 @@ import initDatabase from './database/init.js';
 // Cargar variables de entorno
 dotenv.config();
 
+// Validar variables de entorno críticas
+import validateEnvironment from './config/validateEnv.js';
+validateEnvironment();
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 

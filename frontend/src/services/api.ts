@@ -8,6 +8,7 @@
 
 import { API_BASE_URL, API_ENDPOINTS, getAuthHeaders, REQUEST_TIMEOUT } from '../config/api';
 import { Profile } from '../types';
+import { handleApiError, ApiError, logError } from '../utils/errorHandler';
 
 // Interfaz para respuestas de la API
 interface ApiResponse<T = any> {
@@ -68,20 +69,9 @@ const apiRequest = async <T>(
     
     return data;
   } catch (error) {
-    
-    if (error instanceof Error) {
-      if (error.name === 'AbortError') {
-        throw new Error('Request timeout - verifica tu conexión a internet');
-      }
-      
-      if (error.message.includes('Failed to fetch') || error.message.includes('fetch')) {
-        throw new Error('No se pudo conectar con el servidor. Verifica que el backend esté funcionando.');
-      }
-      
-      throw error;
-    }
-    
-    throw new Error('Error de conexión con el servidor');
+    const appError = handleApiError(error);
+    logError(appError, 'API Request');
+    throw new ApiError(appError.message, appError.code, appError.details);
   }
 };
 

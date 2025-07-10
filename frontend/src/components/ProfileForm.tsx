@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Profile } from '../types';
+import { validateProfile, ValidationResult } from '../utils/validation';
+import { toast } from 'sonner';
 
 interface ProfileFormProps {
   profile?: Profile | null;
@@ -18,6 +20,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profile, onSubmit, onCancel }
     fecha_pago: 1,
     estado_pago: 'pendiente' as 'pagado' | 'pendiente'
   });
+  const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
     if (profile) {
@@ -36,6 +39,20 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ profile, onSubmit, onCancel }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validar formulario
+    const validation = validateProfile({
+      ...formData,
+      monto: Number(formData.monto)
+    });
+    
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      validation.errors.forEach(error => toast.error(error));
+      return;
+    }
+    
+    setErrors([]);
     onSubmit({
       ...formData,
       monto: Number(formData.monto)
