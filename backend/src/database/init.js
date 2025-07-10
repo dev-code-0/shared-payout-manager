@@ -52,8 +52,8 @@ const initDatabase = async () => {
         await query(createProfilesTable);
 
         // Crear usuario admin por defecto
-        const defaultUsername = process.env.DEFAULT_USERNAME || 'admin';
-        const defaultPassword = process.env.DEFAULT_PASSWORD || 'admin123';
+        const defaultUsername = process.env.DEFAULT_USERNAME || 'Netflix';
+        const defaultPassword = process.env.DEFAULT_PASSWORD || 'scart123';
 
         const userCheck = await query('SELECT id FROM users WHERE username = $1', [defaultUsername]);
 

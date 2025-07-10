@@ -72,8 +72,8 @@ DATABASE_URL=postgresql://username:password@localhost:5432/payout_manager
 JWT_SECRET=tu_jwt_secret_super_seguro_aqui
 
 # Usuario por defecto
-DEFAULT_USERNAME=admin
-DEFAULT_PASSWORD=admin123
+DEFAULT_USERNAME=
+DEFAULT_PASSWORD=
 ```
 
 ### 3. Configurar Frontend
@@ -107,8 +107,8 @@ La aplicación estará disponible en:
 ## 📋 Uso
 
 1. **Iniciar sesión** con las credenciales por defecto:
-   - Usuario: `admin`
-   - Contraseña: `admin123`
+   - Usuario:
+   - Contraseña:
 
 2. **Agregar perfiles** de pagos compartidos con:
    - Nombre de la persona
